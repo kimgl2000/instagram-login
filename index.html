@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumio</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: radial-gradient(circle at 50% 30%, #1f2024 0%, #0c0d10 70%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #262626;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid #dbdbdb;
+    border-radius: 1px;
+    padding: 40px 40px 24px;
+  }
+
+  .logo {
+    text-align: center;
+    margin: 14px 0 28px;
+  }
+  .logo .glyph {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 10px;
+    display: block;
+  }
+  .logo .glyph circle { fill: none; stroke-width: 3.4; }
+  .logo .glyph .ring1 { stroke: #4ea1ff; }
+  .logo .glyph .ring2 { stroke: #9b6cff; }
+  .logo .glyph .dot { fill: #c86bff; }
+  .logo span {
+    font-family: 'Roboto', sans-serif;
+    font-size: 34px;
+    font-weight: 600;
+    letter-spacing: -1px;
+    background: linear-gradient(90deg, #4ea1ff, #9b6cff, #c86bff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .field {
+    position: relative;
+    margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%;
+    background: #fafafa;
+    border: 1px solid #dbdbdb;
+    border-radius: 3px;
+    padding: 9px 8px;
+    font-size: 12px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .field input:focus { border-color: #a8a8a8; }
+  .field label {
+    position: absolute;
+    left: 8px;
+    top: 11px;
+    font-size: 12px;
+    color: #8e8e8e;
+    pointer-events: none;
+    transform-origin: left top;
+    transition: transform .12s ease, color .12s;
+  }
+  .field.filled label {
+    transform: scale(0.8) translateY(-7px);
+    color: #8e8e8e;
+  }
+  .field.filled input { padding-top: 15px; padding-bottom: 3px; }
+  #pwField input { padding-right: 70px; }
+
+  .show-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: #262626;
+    cursor: pointer;
+    display: none;
+  }
+  .field.filled .show-btn { display: block; }
+
+  .login-btn {
+    width: 100%;
+    margin-top: 10px;
+    background: #0095f6;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity .15s;
+  }
+  .login-btn.active { opacity: 1; }
+  .login-btn.active:hover { background: #1877f2; }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    margin: 18px 0;
+    color: #8e8e8e;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .divider::before, .divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #dbdbdb;
+  }
+  .divider span { padding: 0 18px; }
+
+  .fb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #7a3fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .fb svg { width: 17px; height: 17px; fill: #7a3fff; }
+
+  .forgot {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 12px;
+    color: #00376b;
+    cursor: pointer;
+  }
+
+  .signup {
+    text-align: center;
+    font-size: 14px;
+    color: #262626;
+  }
+  .signup a { color: #0095f6; font-weight: 600; text-decoration: none; cursor: pointer; }
+
+  /* 성공 화면 */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fade .25s ease;
+  }
+  .overlay.show { display: flex; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 300px;
+    padding: 36px 28px 28px;
+    text-align: center;
+    animation: pop .3s cubic-bezier(.18,.89,.32,1.28);
+  }
+  @keyframes pop { from { transform: scale(.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .check {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #4ea1ff, #9b6cff, #c86bff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .check svg { width: 32px; height: 32px; stroke: #fff; stroke-width: 3; fill: none; }
+  .check svg path { stroke-dasharray: 30; stroke-dashoffset: 30; animation: draw .4s .15s forwards ease; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  .modal h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+  .modal p { font-size: 14px; color: #8e8e8e; margin-bottom: 22px; }
+  .modal .user { color: #262626; font-weight: 600; }
+  .modal button {
+    width: 100%;
+    background: #0095f6;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .modal button:hover { background: #1877f2; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="logo">
+        <svg class="glyph" viewBox="0 0 52 52">
+          <circle class="ring1" cx="26" cy="26" r="20"/>
+          <circle class="ring2" cx="26" cy="26" r="11"/>
+          <circle class="dot" cx="26" cy="26" r="4.5"/>
+        </svg>
+        <span>Lumio</span>
+      </div>
+
+      <div class="field" id="idField">
+        <input type="text" id="username" autocomplete="off">
+        <label for="username">전화번호, 사용자 이름 또는 이메일</label>
+      </div>
+
+      <div class="field" id="pwField">
+        <input type="password" id="password" autocomplete="off">
+        <label for="password">비밀번호</label>
+        <button class="show-btn" id="showBtn">비밀번호 표시</button>
+      </div>
+
+      <button class="login-btn" id="loginBtn">로그인</button>
+
+      <div class="divider"><span>또는</span></div>
+
+      <div class="fb">
+        <svg viewBox="0 0 24 24"><path d="M12 1.5l2.6 6.4 6.9.5-5.3 4.5 1.7 6.7L12 16.4 6.1 20.1l1.7-6.7L2.5 8.9l6.9-.5L12 1.5z"/></svg>
+        Nova로 로그인
+      </div>
+
+      <div class="forgot">비밀번호를 잊으셨나요?</div>
+    </div>
+
+    <div class="card signup">
+      계정이 없으신가요? <a>가입하기</a>
+    </div>
+  </div>
+
+  <!-- 로그인 성공 화면 -->
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <div class="check">
+        <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <h2>로그인 성공</h2>
+      <p><span class="user" id="welcomeUser"></span>님,<br>환영합니다</p>
+      <button id="closeBtn">계속</button>
+    </div>
+  </div>
+
+<script>
+  const username = document.getElementById('username');
+  const password = document.getElementById('password');
+  const idField = document.getElementById('idField');
+  const pwField = document.getElementById('pwField');
+  const loginBtn = document.getElementById('loginBtn');
+  const showBtn = document.getElementById('showBtn');
+  const overlay = document.getElementById('overlay');
+  const closeBtn = document.getElementById('closeBtn');
+  const welcomeUser = document.getElementById('welcomeUser');
+
+  function refresh() {
+    idField.classList.toggle('filled', username.value.length > 0);
+    pwField.classList.toggle('filled', password.value.length > 0);
+    loginBtn.classList.toggle('active', username.value.length > 0 && password.value.length > 0);
+  }
+
+  username.addEventListener('input', refresh);
+  password.addEventListener('input', refresh);
+
+  showBtn.addEventListener('click', () => {
+    const isPw = password.type === 'password';
+    password.type = isPw ? 'text' : 'password';
+    showBtn.textContent = isPw ? '숨기기' : '비밀번호 표시';
+  });
+
+  function tryLogin() {
+    if (!loginBtn.classList.contains('active')) return;
+    welcomeUser.textContent = username.value;
+    overlay.classList.add('show');
+  }
+
+  loginBtn.addEventListener('click', tryLogin);
+  password.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryLogin(); });
+
+  closeBtn.addEventListener('click', () => {
+    overlay.classList.remove('show');
+  });
+</script>
+</body>
+</html>
